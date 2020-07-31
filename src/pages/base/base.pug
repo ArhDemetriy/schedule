@@ -1,0 +1,40 @@
+block mixins
+
+doctype html
+html(lang='ru-RU' dir="ltr")
+  head
+    meta(http-equiv="Content-type" content="text/html; charset=UTF-8")
+    meta(http-equiv="Content-language" content="ru-RU")
+    meta(charset = 'utf-8')
+    meta(http-equiv="Window-target" content="_blank")
+    meta(http-equiv="cleartype" content="on")
+    meta(http-equiv="X-UA-Compatible" content="IE=edge")
+    meta(name="author" content="ArhDemetriy")
+    meta(name='HandheldFriendly' content='true')
+    meta(name='MobileOptimized' content='width')
+    meta(name='apple-mobile-web-app-capable' content='yes')
+    meta(name="viewport" content="width=device-width, height=device-height, initial-scale=1.0")
+    //- поправить эти тэги перед релизом
+    meta(http-equiv="Cache-Control" content="private, no-store, max-age=1200")
+    meta(name="Document-state" content="Static")
+    meta(name="revisit-after" content="4 days")
+    meta(name="Robots" content="index,nofollow")
+
+    block description
+    block title
+      //- title=''
+
+    block skripts__includes
+      script(type='module', src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" type="text/javascript")
+    block skripts
+
+    block styles
+      link(rel='stylesheet', href='https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500&display=swap')
+
+  body
+    header
+      block header
+    main
+      block main
+    footer
+      block footer
