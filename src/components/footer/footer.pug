@@ -1,0 +1,14 @@
+append styles
+  link(rel='stylesheet', href='../../components/footer/footer.less')
+append skripts
+  //- script(type='module', src='../../components/footer/footer.js')
+
+append mixins
+  mixin footer()
+    .footer
+      .footer__item.footer__left
+        object(type='image/svg+xml' data='../../img/logo.svg')='Your browser does not support SVG'
+        span(class= '')!='&copy;&nbsp;Lookin,&nbsp;2020'
+      .footer__item.footer__right
+        object(type='image/svg+xml' data='../../img/technical.svg')='Your browser does not support SVG'
+        a(class= '', href='#')!='Техническая&nbsp;поддержка'
