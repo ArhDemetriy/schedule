@@ -1,0 +1,18 @@
+append styles
+  link(rel='stylesheet', href='../../components/button/button.scss')
+
+append mixins
+  mixin button(options = {})
+    -
+      options.class = options.class ? `button ${options.class}` : `button `;
+      const mod = options.mod ? options.mod.trim().split(/[,\s]\s*/) : [];
+      options.class += options.mod ? ` button-${mod.join(` button-`)} ` : '';
+      delete options.mod;
+      // if (mod.includes('colored')) {};
+      options.class += options.block_class ? ` ${options.block_class} ` : '';
+      const block_class = options.block_class ? `${options.block_class}` : `button`;
+      delete options.block_class;
+      const text = options.text ? options.text : '';
+      delete options.text;
+
+    button()&attributes(options)&attributes(attributes)=text
