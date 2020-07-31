@@ -12,16 +12,16 @@
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid mediumseagreen;//#DFE4EF;
+    border: 2px solid var(--color-shade , #DFE4EF);//#DFE4EF;
     border-radius: 1000000px;
     width: 28px;
     height: 28px;
     box-sizing: border-box;
     &-dane{
-      border-color: #0066FF;
+      border-color: var(--color-shade , #DFE4EF);
     }
     &-in_progress{
-      border-color: #FF238D;
+      border-color: var(--color-warning , #FF238D);
     }
   }
   &__title{
@@ -40,17 +40,17 @@
   &__line{
     height: 2px;
     width: 120px;
-    background-color: mediumseagreen;
+    background-color: var(--color-shade , #DFE4EF);
     position: absolute;
     left: 0;
     transform: translateY(-50%);
     z-index: -1;
     &-dane{
-      background-color: #0066FF;
+      background-color: var(--color-select , #0066FF);
       height: 4px;
     }
     &-in_progress{
-      background: linear-gradient(to right, #0066FF, #FF238D);
+      background: linear-gradient(to right, var(--color-select , #0066FF), var(--color-warning , #FF238D));
       height: 4px;
     }
   }
