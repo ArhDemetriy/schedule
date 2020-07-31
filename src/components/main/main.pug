@@ -1,0 +1,16 @@
+include ../button/button.pug
+
+append styles
+  link(rel='stylesheet', href='../../components/main/main.scss')
+append skripts
+  //- script(type='module', src='../../components/main/main.js')
+
+append mixins
+  mixin main(options = {})
+    -
+      options.class = options.class ? `main ${options.class}` : `main `;
+
+    div()&attributes(options)&attributes(attributes)
+      .buttons
+        +button({text:'Назад'})
+        +button({text:'Далее',mod:'colored'})
