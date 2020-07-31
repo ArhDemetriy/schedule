@@ -4,32 +4,11 @@ append skripts
   //- script(type='module', src='../../../components/footer/footer.js')
 
 append mixins
-  mixin footer(options = {}, items = [])
-    -
-      if (!options.items)
-        options.items = [];
-      items = options.items.concat(items);
-      delete options.items;
-
-      options.class = options.class ? `footer ${options.class}` : `footer `;
-      const mod = options.mod ? options.mod.trim().split(/[,\s]\s*/) : [];
-      options.class += options.mod ? ` footer-${mod.join(` footer-`)} ` : '';
-      delete options.mod;
-      // if (mod.includes('colored')) {};
-      options.class += options.block_class ? ` ${options.block_class} ` : '';
-      const block_class = options.block_class ? `${options.block_class}` : `footer`;
-      delete options.block_class;
-      const text = options.text ? options.text : '';
-      delete options.text;
-      const title = options.title ? `${options.title}` : '';
-      delete options.title;
-      const dropable = options.dropable && options.dropable != 'false' ? true : false;
-      delete options.dropable;
-      options.name = options.name || block_class;
-
-    -
-      let tag = 'div';
-    #{tag}(class=`font-upper`)&attributes(options)&attributes(attributes)
-
-    div(class=`font-upper`, class = options.class)&attributes(attributes)
-      - delete options.class;
+  mixin footer()
+    .footer
+      .footer__left
+        img()
+        span(class= ``)=``
+      .footer__right
+        img()
+        a(class= ``, href=`#`)=`Техническая поддержка`
