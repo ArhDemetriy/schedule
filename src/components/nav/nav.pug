@@ -12,20 +12,23 @@ append mixins
       delete options.items;
       if (items.length < 1)
         items = [
-          'Тип предприятия',
+          'Тип&nbsp;предприятия',
           'Категории',
-          'График работы',
-          'Оборот и нагрузка',
+          'График&nbsp;работы',
+          'Оборот&nbsp;и&nbsp;нагрузка',
           'Должности',
-          'Тип нагрузки',
+          'Тип&nbsp;нагрузки',
         ];
-      const selectedItem = -1 + isFinite(options.selectedItem) ? options.selectedItem : 3;
+      const selectedItem = -1 + ( isFinite(options.selectedItem) ? options.selectedItem : 3 );
       delete options.selectedItem;
 
     nav(class=`nav`)&attributes(options)&attributes(attributes)
       each item, index in items
         .nav__item
-          h2.nav__title=item
-          b.nav__number(class= `${ index < selectedItem ? 'nav__number-dane' : ''} ${ index == selectedItem ? 'nav__number-in_progress' : ''}`)=`${index + 1}`
-          if index < items.length-1
-            div.nav__line(class= `${ index < selectedItem-1 ? 'nav__line-dane' : ''} ${ index == selectedItem-1 ? 'nav__line-in_progress' : ''}`)
+          .nav__title_container
+            h2.nav__title!=item
+          .nav__line_and_number_container
+            b.nav__number(class= `${ index < selectedItem ? 'nav__number-dane' : ''} ${ index == selectedItem ? 'nav__number-in_progress' : ''}`)=`${index + 1}`
+            if index < items.length-1
+              .nav__line_container
+                div.nav__line(class= `${ index < selectedItem-1 ? 'nav__line-dane' : ''} ${ index == selectedItem-1 ? 'nav__line-in_progress' : ''}`)
