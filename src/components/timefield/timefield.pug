@@ -1,0 +1,15 @@
+append styles
+  link(rel='stylesheet', href='../../components/timefield/timefield.less')
+append skripts
+  //- script(type='module', src='../../components/timefield/timefield.js')
+
+append mixins
+  mixin timefield(options = {})
+    -
+      options.class = options.class ? `timefield ${options.class}` : `timefield `;
+      const mod = options.mod ? options.mod.trim().split(/[,\s]\s*/) : [];
+      options.class += options.mod ? ` timefield-${mod.join(` timefield-`)} ` : '';
+      delete options.mod;
+      // if (mod.includes('colored')) {};
+
+    input(type='time',value='00:00',placeholder='ЧЧ:ММ',size=4)&attributes(options)&attributes(attributes)
