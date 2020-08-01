@@ -22,15 +22,54 @@ append mixins
         span='--'
         +timefield()
       .table__workspace
-        span.table__day.mon=   'Пн'
-        span.table__day.tues=  'Вт'
-        span.table__day.wed=   'Ср'
-        span.table__day.thurs= 'Чт'
-        span.table__day.fri=   'Пт'
-        span.table__day.sat=   'Сб'
-        span.table__day.sun=   'Вс'
+        //-
+          span.table__day.mon=   'Пн'
+          span.table__day.tues=  'Вт'
+          span.table__day.wed=   'Ср'
+          span.table__day.thurs= 'Чт'
+          span.table__day.fri=   'Пт'
+          span.table__day.sat=   'Сб'
+          span.table__day.sun=   'Вс'
 
-        span.table__time_col
+          span.table__time_col
+        table(border='1')
+          colgroup
+            col(span='9999')
+          tr
+            th
+            th='Q'
+            th='W'
+          tr
+            th.table__day.mon=   'Пн'
+            td='0'
+            td='0'
+            td='0'
+          tr
+            th.table__day.tues=  'Вт'
+            td='0'
+            td='0'
+            td='0'
+          tr
+            th.table__day.wed=   'Ср'
+            td='0'
+            td='0'
+          tr
+            th.table__day.thurs= 'Чт'
+            td='0'
+            td='0'
+          tr
+            th.table__day.fri=   'Пт'
+            td='0'
+            td='0'
+          tr
+            th.table__day.sat=   'Сб'
+            td='0'
+            td='0'
+          tr
+            th.table__day.sun=   'Вс'
+            td='0'
+            td='0'
+
       .table__buttons_container
           .table__buttons
             +button({text:'Заполнить автоматически', mod:'slim'})
