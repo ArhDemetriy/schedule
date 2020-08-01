@@ -1,5 +1,5 @@
 .button{
-  width: 100px;
+  min-width: 100px;
   height: 38px;
   font-weight: 500;
   font-size: 15px;
@@ -7,10 +7,18 @@
   box-sizing: border-box;
   border: 1px solid #D3D8DF;
   border-radius: 50px;
+  background: transparent;
   &-colored{
     background-color: var(--color-select , #0066FF);
     color: #FFFFFF;
     border: none;
     border-radius: 50px;
+  }
+  &-slim{
+    height: 30px;
+    padding-right: 5px;
+    display: inline-flex;
+    justify-content: space-around;
+    align-items: center;
   }
 }

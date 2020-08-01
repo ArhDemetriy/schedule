@@ -1,0 +1,29 @@
+include ../button/button.pug
+
+append styles
+  link(rel='stylesheet', href='../../components/main/main.less')
+append skripts
+  //- script(type='module', src='../../components/main/main.js')
+
+append mixins
+  mixin main(options = {})
+    -
+      options.class = options.class ? `main ${options.class}` : `main `;
+
+    div()&attributes(options)&attributes(attributes)
+      .main__schedule_editor
+        h1='График работы предприятия'
+        .main__interval_setter
+          span='Задать интервал таблицы'
+          span=' '
+          span='-'
+          span=' '
+
+
+        .main__actions_buttons_container
+          .main__actions_buttons
+            +button({text:'Заполнить автоматически', mod:'slim'})
+            +button({text:'Очистить', mod:'slim'})
+      .main__navigate_buttons
+        +button({text:'Назад'})
+        +button({text:'Далее',mod:'colored'})

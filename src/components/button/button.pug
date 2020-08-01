@@ -1,5 +1,5 @@
 append styles
-  link(rel='stylesheet', href='../../components/button/button.scss')
+  link(rel='stylesheet', href='../../components/button/button.less')
 
 append mixins
   mixin button(options = {})
@@ -15,4 +15,8 @@ append mixins
       const text = options.text ? options.text : '';
       delete options.text;
 
-    button()&attributes(options)&attributes(attributes)=text
+    if !block
+      button(type='button')&attributes(options)&attributes(attributes)=text
+    else
+      button(type='button')&attributes(options)&attributes(attributes)
+        block
