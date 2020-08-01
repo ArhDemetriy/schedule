@@ -4,7 +4,7 @@ include ../button/button.pug
 append styles
   link(rel='stylesheet', href='../../components/table/table.less')
 append skripts
-  //- script(type='module', src='../../components/table/table.js')
+  script(type='module', src='../../components/table/table.js')
 
 append mixins
   mixin table(options = {})
@@ -14,61 +14,74 @@ append mixins
       options.class += options.mod ? ` table-${mod.join(` table-`)} ` : '';
       delete options.mod;
       // if (mod.includes('colored')) {};
+      const timeBegin = (function() {
+        let temp = isFinite(options.timeBegin) ? options.timeBegin : 0;
+        if (temp < 0) temp = 0;
+        if (temp >= 24) temp = 23.99;
+        // temp = Math.floor(temp) + Math.round(temp % 1)*0.5;
+        return temp;
+      })();
+      delete options.timeBegin;
+      const timeEnd = (function() {
+        let temp = isFinite(options.timeEnd) ? options.timeEnd : timeBegin;
+        if (temp < 0) temp = 0;
+        if (temp >= 24) temp = 23.99;
+        // temp = Math.floor(temp) + Math.round(temp % 1)*0.5;
+        return temp;
+      })();
+      delete options.timeEnd;
+
+      const days = {
+        mon:  'Пн',
+        tues: 'Вт',
+        wed:  'Ср',
+        thurs:'Чт',
+        fri:  'Пт',
+        sat:  'Сб',
+        sun:  'Вс',
+      };
+      let times = [];
+      for (let n = 0; n <= 1; n++)
+        for(let c = 0; c < 24; c += 0.5)
+          times.push(`${c}`);
+      let beginComplited = false;
+      let endComplited = false;
 
     div()&attributes(options)&attributes(attributes)
       .table__title
         span='Задать интервал таблицы'
         +timefield()
-        span='--'
+        span!='&mdash;'
         +timefield()
       .table__workspace
-        //-
-          span.table__day.mon=   'Пн'
-          span.table__day.tues=  'Вт'
-          span.table__day.wed=   'Ср'
-          span.table__day.thurs= 'Чт'
-          span.table__day.fri=   'Пт'
-          span.table__day.sat=   'Сб'
-          span.table__day.sun=   'Вс'
-
-          span.table__time_col
         table(border='1')
           colgroup
-            col(span='9999')
-          tr
-            th
-            th='Q'
-            th='W'
-          tr
-            th.table__day.mon=   'Пн'
-            td='0'
-            td='0'
-            td='0'
-          tr
-            th.table__day.tues=  'Вт'
-            td='0'
-            td='0'
-            td='0'
-          tr
-            th.table__day.wed=   'Ср'
-            td='0'
-            td='0'
-          tr
-            th.table__day.thurs= 'Чт'
-            td='0'
-            td='0'
-          tr
-            th.table__day.fri=   'Пт'
-            td='0'
-            td='0'
-          tr
-            th.table__day.sat=   'Сб'
-            td='0'
-            td='0'
-          tr
-            th.table__day.sun=   'Вс'
-            td='0'
-            td='0'
+            col.table__day_names(span='1')
+          tr.table__time_names
+            td
+            -
+              beginComplited = false;
+              endComplited = false;
+            each time in times
+              -
+                if ((Math.floor(timeBegin) + Math.round(timeBegin % 1)*0.5) == time) beginComplited = true;
+                if ((Math.floor(timeEnd  ) + Math.round(timeEnd   % 1)*0.5) == time) endComplited = true;
+              th(class=`table__col_${Math.trunc(time)}_${(time%1)}`, class= beginComplited && !endComplited ? '' : 'table__col-hidden')=`${Math.trunc(time)}`
+                sup=`${(time%1) * 6}0`
+
+          each day, enDay in days
+            tr
+              th(class=`table__day_name${enDay}`)=day
+              -
+                beginComplited = false;
+                endComplited = false;
+              each time in times
+                -
+                  if ((Math.floor(timeBegin) + Math.round(timeBegin % 1)*0.5) == time) beginComplited = true;
+                  if ((Math.floor(timeEnd  ) + Math.round(timeEnd   % 1)*0.5) == time) endComplited = true;
+                td(class=`table__col_${Math.trunc(time)}_${(time%1)}`, class= beginComplited && !endComplited ? '' : 'table__col-hidden', class='table__item')=` `
+
+
 
       .table__buttons_container
           .table__buttons

@@ -15,7 +15,10 @@ append mixins
       .main__schedule_editor
         h1='График работы предприятия'
         .main__interval_setter
-          +table()
+          +table({
+            timeBegin: 1,
+            timeEnd: 23,
+          })
       .main__navigate_buttons
         +button({text:'Назад'})
         +button({text:'Далее',mod:'colored'})

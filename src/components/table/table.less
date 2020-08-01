@@ -1,4 +1,17 @@
+table{
+  width: 100%;
+}
+th{
+  font-family: Fira Sans;
+  font-size: 14px;
+  line-height: 220%;
+  text-align: left;
+}
+tr{
+  height: 30px;
+}
 .table{
+
   &__buttons{
     &_container{
       display: flex;
@@ -10,30 +23,24 @@
     width: 100%;
     max-width: 310px;
   }
-  &__workspace{
-    // display: grid;
+  &__day_names{
+    width: 40px;
+  }
+  &__items{
+    width: 30px;
+  }
+  &__item{
+    background-color: gray;
+    &-colored{
+      background-color: blue;
+    }
+  }
+  &__col{
+    &-hidden{
+      display: none;
+    }
 
   }
 
-}
-table{
-  width: 100%;
-}
-col{
-  // width: 5.84070796%;
-}
-th{
-  font-family: Fira Sans;
-  font-size: 14px;
-  line-height: 220%;
-}
-tr{
-  height: 30px;
-  & :nth-child(1){
-    width: 37px;
-  }
-}
-td{
-  // display: inline-block;
-  // width: 5.84070796%;
+
 }
