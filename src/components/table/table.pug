@@ -50,9 +50,9 @@ append mixins
     div()&attributes(options)&attributes(attributes)
       .table__title
         span='Задать интервал таблицы'
-        +timefield()
+        +timefield({class:'table__time_begin'})
         span!='&mdash;'
-        +timefield()
+        +timefield({class:'table__time_end'})
       .table__workspace
         table(border='1')
           colgroup
@@ -85,5 +85,5 @@ append mixins
 
       .table__buttons_container
           .table__buttons
-            +button({text:'Заполнить автоматически', mod:'slim'})
-            +button({text:'Очистить', mod:'slim'})
+            +button({block_class: 'table__button_fill', text:'Заполнить автоматически', mod:'slim'})
+            +button({block_class: 'table__button_clear',text:'Очистить', mod:'slim'})
