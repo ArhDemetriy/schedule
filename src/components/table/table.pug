@@ -66,7 +66,7 @@ append mixins
               -
                 if ((Math.floor(timeBegin) + Math.round(timeBegin % 1)*0.5) == time) beginComplited = true;
                 if ((Math.floor(timeEnd  ) + Math.round(timeEnd   % 1)*0.5) == time) endComplited = true;
-              th(class=`table__col_${Math.trunc(time)}_${(time%1)}`, class= beginComplited && !endComplited ? '' : 'table__col-hidden')=`${Math.trunc(time)}`
+              th('data-time'=time, class=`table__col_${Math.trunc(time)}_${(time%1)}`, class= beginComplited && !endComplited ? '' : 'table__col-hidden')=`${Math.trunc(time)}`
                 sup=`${(time%1) * 6}0`
 
           each day, enDay in days
@@ -79,7 +79,7 @@ append mixins
                 -
                   if ((Math.floor(timeBegin) + Math.round(timeBegin % 1)*0.5) == time) beginComplited = true;
                   if ((Math.floor(timeEnd  ) + Math.round(timeEnd   % 1)*0.5) == time) endComplited = true;
-                td(class=`table__col_${Math.trunc(time)}_${(time%1)}`, class= beginComplited && !endComplited ? '' : 'table__col-hidden', class='table__item')=` `
+                td('data-time'=time, class=`table__col_${Math.trunc(time)}_${(time%1)}`, class= beginComplited && !endComplited ? '' : 'table__col-hidden', class='table__item')=` `
 
 
 
