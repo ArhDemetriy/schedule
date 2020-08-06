@@ -4,7 +4,9 @@ include ../button/button.pug
 append styles
   link(rel='stylesheet', href='../../components/table/table.less')
 append skripts
-  script(type='module', src='../../components/table/table.js')
+  //- script(type='module', src='../../components/table/table.js')
+  //- script(type='module', src='~/knockout-3.5.1.js')
+  script(type='module', src='../../components/table/table_new.js')
 
 append mixins
   mixin table(options = {})
