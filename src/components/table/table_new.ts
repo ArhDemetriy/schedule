@@ -22,9 +22,10 @@ import { type } from "os";
         });
         if ((temp.length > 2) && (temp[0].IsCross(temp[temp.length - 1])))
           temp[0] = temp[0].Concat(temp.pop());
-
         this.splice(0, this.length, ...temp);
       };
+
+      if (this.length > 1) this.FixDaySchedule();
     };
     FixDaySchedule: ()=>void;
   };
@@ -58,13 +59,13 @@ import { type } from "os";
   class schedule{
     week: WeekSchedule;
     constructor(
-      _mon   = new DaySchedule,
-      _tues  = new DaySchedule,
-      _wed   = new DaySchedule,
-      _thurs = new DaySchedule,
-      _fri   = new DaySchedule,
-      _sat   = new DaySchedule,
-      _sun   = new DaySchedule,
+      _mon   = new DaySchedule(),
+      _tues  = new DaySchedule(),
+      _wed   = new DaySchedule(),
+      _thurs = new DaySchedule(),
+      _fri   = new DaySchedule(),
+      _sat   = new DaySchedule(),
+      _sun   = new DaySchedule(),
     ) {
       const week: WeekSchedule = new Map([
         ['mon', _mon],
@@ -89,17 +90,16 @@ import { type } from "os";
     }
     Clear() {
       this.week.forEach((_,key: string, map: WeekSchedule) => {
-        map.set(key, []);
+        map.set(key, new DaySchedule());
       })
     }
     Fiil() {
       this.week.forEach((_, key: string, map: WeekSchedule) => {
         const tempinterval = new Interval(new Date(), new Date());
-        tempinterval.end.setHours(24, 0, 0, -1);
-        map.set(key,[tempinterval]);
+        tempinterval.end.setHours(24);
+        map.set(key, new DaySchedule([tempinterval]));
       })
     }
-
   }
 
   let myVievModel = {
