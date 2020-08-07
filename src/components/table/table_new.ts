@@ -4,9 +4,30 @@ import { type } from "os";
   'use strict';
   let ko = require('knockout');
 
-  type DaySchedule = Array<Interval>;
   type WeekSchedule = Map<string, DaySchedule>;
+  class DaySchedule extends Array<Interval>{
+    constructor(array?: Array<Interval>) {
+      if (array) super(...array)
+      else super();
 
+      this.FixDaySchedule = function () {
+        if (this.length <= 0) return;
+        this.sort((a, b) => { return a.begin.getTime() - b.begin.getTime(); });
+        const temp: DaySchedule = this.filter((value, index, array: DaySchedule) => {
+          if ((array.length - 1 > index) && (array[index + 1].IsCross(array[index]))) {
+            array[index + 1] = array[index + 1].Concat(array[index]);
+            return false;
+          } else
+            return true;
+        });
+        if ((temp.length > 2) && (temp[0].IsCross(temp[temp.length - 1])))
+          temp[0] = temp[0].Concat(temp.pop());
+
+        this.splice(0, this.length, ...temp);
+      };
+    };
+    FixDaySchedule: ()=>void;
+  };
   class Interval{
     _ONEDAY = new Date(86400000);
     begin: Date;
@@ -34,17 +55,16 @@ import { type } from "os";
       return new Interval(tempBegin, tempEnd);
     }
   };
-
   class schedule{
     week: WeekSchedule;
     constructor(
-      _mon  : DaySchedule = [],
-      _tues : DaySchedule = [],
-      _wed  : DaySchedule = [],
-      _thurs: DaySchedule = [],
-      _fri  : DaySchedule = [],
-      _sat  : DaySchedule = [],
-      _sun  : DaySchedule = [],
+      _mon   = new DaySchedule,
+      _tues  = new DaySchedule,
+      _wed   = new DaySchedule,
+      _thurs = new DaySchedule,
+      _fri   = new DaySchedule,
+      _sat   = new DaySchedule,
+      _sun   = new DaySchedule,
     ) {
       const week: WeekSchedule = new Map([
         ['mon', _mon],
@@ -56,27 +76,16 @@ import { type } from "os";
         ['sun', _sun],
       ]);
       week.forEach((day: DaySchedule, key: string, map: WeekSchedule) => {
-        if (day.length <= 0) return;
-        day.sort((a, b) => { return a.begin.getTime() - b.begin.getTime(); });
-        day = day.filter((value, index, array: DaySchedule) => {
-          if ((array.length - 1 > index) && (array[index + 1].IsCross(array[index]))) {
-            array[index + 1] = array[index + 1].Concat(array[index]);
-            return false;
-          } else
-            return true;
-        });
-        if ((day.length > 2) && (day[0].IsCross(day[day.length - 1])))
-          day[0] = day[0].Concat(day.pop());
+        day.FixDaySchedule();
         map.set(key, day);
       });
       this.week = week;
     }
     AddInterval(dayName: string, interval: Interval) {
       const day = this.week.get(dayName);
-      const targetPos = day.findIndex((value) => { return value.begin > interval.begin; });
-      if
-
       day.push(interval);
+      day.FixDaySchedule();
+      this.week.set(dayName, day);
     }
     Clear() {
       this.week.forEach((_,key: string, map: WeekSchedule) => {
