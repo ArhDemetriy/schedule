@@ -3,6 +3,8 @@ import { type } from "os";
 (function () {
   'use strict';
   let ko = require('knockout');
+  const DAY         = 86400000;
+  const HALFANHOUR  = 1800000;
 
   type WeekSchedule = Map<string, DaySchedule>;
   class DaySchedule extends Array<Interval>{
@@ -30,7 +32,6 @@ import { type } from "os";
     FixDaySchedule: ()=>void;
   };
   class Interval{
-    _ONEDAY = new Date(86400000);
     begin: Date;
     end: Date;
     constructor(begin: Date, end: Date) {
@@ -38,7 +39,7 @@ import { type } from "os";
       let tempEnd = new Date();
       tempBegin.setHours(begin.getHours(), begin.getMinutes(), begin.getSeconds(), begin.getMilliseconds());
       tempEnd.setHours(end.getHours(), end.getMinutes(), end.getSeconds(), end.getMilliseconds());
-      if (tempBegin >= tempEnd) tempEnd = new Date(tempEnd.getTime() + this._ONEDAY.getTime());
+      if (tempBegin >= tempEnd) tempEnd = new Date(tempEnd.getTime() + DAY);
 
       this.begin = tempBegin;
       this.end = tempEnd;
@@ -56,7 +57,7 @@ import { type } from "os";
       return new Interval(tempBegin, tempEnd);
     }
   };
-  class schedule{
+  class Schedule{
     week: WeekSchedule;
     constructor(
       _mon   = new DaySchedule(),
@@ -100,13 +101,25 @@ import { type } from "os";
         map.set(key, new DaySchedule([tempinterval]));
       })
     }
+  };
+  class MyVievModel{
+    model: Schedule;
+    viewInterval: Interval;
+    period: Date;
+    countPeriods: number;
+    viewBegin: Date;
+    viewEnd: Date;
+    constructor(
+      viewInterval: Interval = new Interval(new Date(), new Date(DAY)),
+      period: Date = new Date(HALFANHOUR),
+    ) {
+      this.viewInterval = new Interval(viewInterval.begin, viewInterval.end);
+      this.period = new Date();
+      this.period.setHours(period.getHours(), period.getMinutes(), period.getSeconds(), period.getMilliseconds());
+
+      this.countPeriods = this.viewInterval.end.getTime() - this.viewInterval.begin.getTime();
+      this.countPeriods /= this.period.getTime();
+      this.countPeriods = Math.ceil(Math.abs(this.countPeriods));
+    };
   }
-
-  let myVievModel = {
-    days:{}
-
-  }
-
-
-
 })();
