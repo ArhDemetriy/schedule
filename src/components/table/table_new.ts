@@ -109,6 +109,7 @@ import { type } from "os";
     countPeriods: number;
     viewBegin: Date;
     viewEnd: Date;
+    inDayTicks: {from: Date, to: Date, period: Date, [Symbol.iterator](): Generator<Date,Date,void>};
     constructor(
       viewInterval: Interval = new Interval(new Date(), new Date(DAY)),
       period: Date = new Date(HALFANHOUR),
@@ -117,9 +118,25 @@ import { type } from "os";
       this.period = new Date();
       this.period.setHours(period.getHours(), period.getMinutes(), period.getSeconds(), period.getMilliseconds());
 
-      this.countPeriods = this.viewInterval.end.getTime() - this.viewInterval.begin.getTime();
-      this.countPeriods /= this.period.getTime();
-      this.countPeriods = Math.ceil(Math.abs(this.countPeriods));
+      this.inDayTicks = (function (from: Date, to: Date, period: Date) {
+        let twoStepIteration = new Date();
+        twoStepIteration.setHours(from.getHours());
+        if (twoStepIteration.getTime() < from.getTime()) twoStepIteration.setHours(twoStepIteration.getHours() + 1);
+        twoStepIteration.setTime(twoStepIteration.getTime() + ((twoStepIteration.getTime() - from.getTime()) % period.getTime()));
+        if (twoStepIteration.getTime() <= from.getTime()) twoStepIteration.setTime(twoStepIteration.getTime() + period.getTime());
+        return {
+          from: from,
+          to: to,
+          period: period,
+          *[Symbol.iterator](): Generator<Date,Date,void> {
+            yield this.from;
+            for (let value = new Date(twoStepIteration.getTime()); value < this.to; value.setTime(value.getTime() + this.period.getTime())) {
+              yield value;
+            }
+            return this.to;
+          }
+        };
+      })(new Date(this.viewInterval.begin.getTime()), new Date(this.viewInterval.end.getTime()), new Date(this.period.getTime()));
     };
   }
 })();
