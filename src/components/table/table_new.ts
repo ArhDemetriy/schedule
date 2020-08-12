@@ -103,12 +103,14 @@ import { type } from "os";
     }
   };
   class MyVievModel{
-    model: Schedule;
+    data: Schedule;
+    model: Map<string, Array<{ time:number, name: string}>>;
     viewInterval: Interval;
     period: Date;
     countPeriods: number;
     viewBegin: Date;
     viewEnd: Date;
+    countCel: number;
     inDayTicks: {from: Date, to: Date, period: Date, [Symbol.iterator](): Generator<Date,Date,void>};
     constructor(
       viewInterval: Interval = new Interval(new Date(), new Date(DAY)),
@@ -137,6 +139,50 @@ import { type } from "os";
           }
         };
       })(new Date(this.viewInterval.begin.getTime()), new Date(this.viewInterval.end.getTime()), new Date(this.period.getTime()));
+
+      this.countCel = Math.ceil(DAY / this.period.getTime());
+
+      const tempArr = []; {
+        for (let i = new Date(); i.getTime() < DAY; i.setTime(i.getTime() + this.period.getTime())) {
+          tempArr.push({
+            time: i.getTime(),
+            name: `${i.getHours()}:${i.getMinutes()}`,
+          });
+        };
+        tempArr.push({
+          time: DAY,
+          name: (() => {
+            const temp = new Date(DAY);
+            return `${temp.getHours()}:${temp.getMinutes()}`
+          })(),
+        });
+      }
+
+      this.data = new Schedule();
+      for (let key of this.data.week.keys()){
+        const arr = [];
+        tempArr.forEach((value) => {
+          arr.push({
+            time: value.time,
+            name: value.name,
+          });
+        });
+        this.model.set(key, arr);
+      };
     };
   }
+
+  const viewModel = function () {
+    const tempModel = new MyVievModel();
+    const initArr = [];
+    tempModel.model.get('mon').forEach((value) => {
+      initArr.push({
+        time: value.time,
+        name: value.name,
+      })
+    });
+    this.items = ko.observableArray(initArr);
+  }
+  ko.applyBindings(viewModel);
+
 })();
