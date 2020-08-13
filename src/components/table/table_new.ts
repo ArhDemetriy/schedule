@@ -172,7 +172,7 @@ import { type } from "os";
     };
   }
 
-  const viewModel = function () {
+  let viewModel = function () {
     const tempModel = new MyVievModel();
     const initArr = [];
     tempModel.model.get('mon').forEach((value) => {
@@ -182,7 +182,9 @@ import { type } from "os";
       })
     });
     this.items = ko.observableArray(initArr);
+    this.begin = ko.observable("12:43");
+    this.end = ko.observable("32:54");
   }
-  ko.applyBindings(viewModel);
+  ko.applyBindings(new viewModel());
 
 })();
