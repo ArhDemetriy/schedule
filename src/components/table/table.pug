@@ -51,8 +51,8 @@ append mixins
 
     div()&attributes(options)&attributes(attributes)
       .table__title
-        span('data-bind'='text: $end')='Задать интервал таблицы'
-        +timefield({class:'table__time_begin','data-bind':'Value: begin'})
+        span('data-bind'='text: end')='Задать интервал таблицы'
+        +timefield({class:'table__time_begin','data-bind':'value: begin'})
         span!='&mdash;'
         +timefield({class:'table__time_end','data-bind':'value: end'})
       .table__workspace
