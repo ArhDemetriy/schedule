@@ -43,15 +43,19 @@ append mixins
         sun:  'Вс',
       };
       let times = [];
-      for (let n = 0; n <= 1; n++)
-        for(let c = 0; c < 24; c += 0.5)
-          times.push(`${c}`);
+        for(let c = 0; c < 24; c += 0.25){
+          let h = `${Math.trunc(c)}`
+          if (h.length < 2) h = '0' + h;
+          let m = `${(c%1 * 60)}`
+          if (m.length < 2) m = '0' + m;
+          times.push(`${h}:${m}`);
+        }
       let beginComplited = false;
       let endComplited = false;
 
     div()&attributes(options)&attributes(attributes)
       .table__title
-        span('data-bind'='text: end')='Задать интервал таблицы'
+        span('data-bind'='text: begin')='Задать интервал таблицы'
         +timefield({class:'table__time_begin','data-bind':'value: begin'})
         span!='&mdash;'
         +timefield({class:'table__time_end','data-bind':'value: end'})
@@ -61,27 +65,13 @@ append mixins
             col.table__day_names(span='1')
           tr.table__time_names
             td
-            -
-              beginComplited = false;
-              endComplited = false;
-            each time in times
-              -
-                if ((Math.floor(timeBegin) + Math.round(timeBegin % 1)*0.5) == time) beginComplited = true;
-                if ((Math.floor(timeEnd  ) + Math.round(timeEnd   % 1)*0.5) == time) endComplited = true;
-              th('data-time'=time, class=`table__col_${Math.trunc(time)}_${(time%1)}`, class= beginComplited && !endComplited ? '' : 'table__col-hidden')=`${Math.trunc(time)}`
-                sup=`${(time%1) * 6}0`
-
+            each time,index in times
+              th('data-time'=time, class=`table__col_${time}`, data-bind=`visible: ${index + 1} <= columns().length, text: columns()[${index}]`)=`${time}`
           each day, enDay in days
             tr
               th(class=`table__day_name${enDay}`)=day
-              -
-                beginComplited = false;
-                endComplited = false;
-              each time in times
-                -
-                  if ((Math.floor(timeBegin) + Math.round(timeBegin % 1)*0.5) == time) beginComplited = true;
-                  if ((Math.floor(timeEnd  ) + Math.round(timeEnd   % 1)*0.5) == time) endComplited = true;
-                td('data-time'=time, class=`table__col_${Math.trunc(time)}_${(time%1)}`, class= beginComplited && !endComplited ? '' : 'table__col-hidden', class='table__item')=` `
+              each time,index in times
+                td('data-time'=time, class=`table__col_${time}`, class='table__item', data-bind=`visible: ${index + 1} <= columns().length`)=` `
 
 
 

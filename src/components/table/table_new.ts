@@ -1,190 +1,88 @@
+import { stringify } from "querystring";
 import { type } from "os";
+import { Console } from "console";
 
 (function () {
   'use strict';
   let ko = require('knockout');
   const DAY         = 86400000;
   const HALFANHOUR  = 1800000;
+  //
+  const ZERODATEPREFIX = (zerodate =>
+    `${zerodate.getFullYear()}-${String(zerodate.getMonth()).padStart(2, '0')}-${String(zerodate.getDate()).padStart(2, '0')}T`
+  )(new Date(0));
 
-  type WeekSchedule = Map<string, DaySchedule>;
-  class DaySchedule extends Array<Interval>{
-    constructor(array?: Array<Interval>) {
-      if (array) super(...array)
-      else super();
+  interface SmartDate {
+    getDate(): string;
+    getDate(): Date;
+    setDate(value: string): void;
+    setDate(value: Date): void;
+  }
+  const strToTime = (time: string) => {
+    const result = new Date(0);
+    const splitedTime = time.trim().split(':');
+    if (!splitedTime || splitedTime.length < 1 || splitedTime.some(value => !isFinite(+value))) return result;
+    result.setHours(...splitedTime.map(value => Number(value)) as [number,number,number,number]);
+    return result;
+  }
 
-      this.FixDaySchedule = function () {
-        if (this.length <= 0) return;
-        this.sort((a, b) => { return a.begin.getTime() - b.begin.getTime(); });
-        const temp: DaySchedule = this.filter((value, index, array: DaySchedule) => {
-          if ((array.length - 1 > index) && (array[index + 1].IsCross(array[index]))) {
-            array[index + 1] = array[index + 1].Concat(array[index]);
-            return false;
-          } else
-            return true;
-        });
-        if ((temp.length > 2) && (temp[0].IsCross(temp[temp.length - 1])))
-          temp[0] = temp[0].Concat(temp.pop());
-        this.splice(0, this.length, ...temp);
-      };
+  class HelloViewModel {
+    dayNames = [
+      { name: 'mon',
+        ru: 'Пн'},
+      { name: 'tues',
+        ru: 'Вт'},
+      { name: 'wed',
+        ru: 'Ср'},
+      { name: 'thurs',
+        ru: 'Чт'},
+      { name: 'fri',
+        ru: 'Пт'},
+      { name: 'sat',
+        ru: 'Сб'},
+      { name: 'sun',
+        ru: 'Вс'},
+    ];
+    week: Map<string,KnockoutObservableArray<boolean>>;
+    private begin: KnockoutObservable<string>;
+    private end: KnockoutObservable<string>;
+    private columns: KnockoutComputed<Array<string>>;
+    private period: Date;
 
-      if (this.length > 1) this.FixDaySchedule();
-    };
-    FixDaySchedule: ()=>void;
-  };
-  class Interval{
-    begin: Date;
-    end: Date;
-    constructor(begin: Date, end: Date) {
-      let tempBegin = new Date();
-      let tempEnd = new Date();
-      tempBegin.setHours(begin.getHours(), begin.getMinutes(), begin.getSeconds(), begin.getMilliseconds());
-      tempEnd.setHours(end.getHours(), end.getMinutes(), end.getSeconds(), end.getMilliseconds());
-      if (tempBegin >= tempEnd) tempEnd = new Date(tempEnd.getTime() + DAY);
+    constructor(begin: string = '00:00', end: string = '00:00', period: Date = new Date(HALFANHOUR)) {
+      this.begin = ko.observable(begin);
+      this.end = ko.observable(end);
+      this.period = period;
 
-      this.begin = tempBegin;
-      this.end = tempEnd;
-    };
-    IsCross(interval: Interval): Boolean {
-      return ((this.begin <= interval.begin) && (interval.begin <= this.end)) ||
-        ((this.begin <= interval.end) && (interval.end <= this.end)) ||
-        ((interval.begin <= this.begin) && (this.end <= interval.end));
-    };
-    Concat(interval: Interval): Interval{
-      let tempBegin = this.begin;
-      let tempEnd = this.end;
-      if (interval.begin < tempBegin) tempBegin = interval.begin;
-      if (interval.end > tempEnd) tempEnd = interval.end;
-      return new Interval(tempBegin, tempEnd);
-    }
-  };
-  class Schedule{
-    week: WeekSchedule;
-    constructor(
-      _mon   = new DaySchedule(),
-      _tues  = new DaySchedule(),
-      _wed   = new DaySchedule(),
-      _thurs = new DaySchedule(),
-      _fri   = new DaySchedule(),
-      _sat   = new DaySchedule(),
-      _sun   = new DaySchedule(),
-    ) {
-      const week: WeekSchedule = new Map([
-        ['mon', _mon],
-        ['tues', _tues],
-        ['wed', _wed],
-        ['thurs', _thurs],
-        ['fri', _fri],
-        ['sat', _sat],
-        ['sun', _sun],
-      ]);
-      week.forEach((day: DaySchedule, key: string, map: WeekSchedule) => {
-        day.FixDaySchedule();
-        map.set(key, day);
-      });
-      this.week = week;
-    }
-    AddInterval(dayName: string, interval: Interval) {
-      const day = this.week.get(dayName);
-      day.push(interval);
-      day.FixDaySchedule();
-      this.week.set(dayName, day);
-    }
-    Clear() {
-      this.week.forEach((_,key: string, map: WeekSchedule) => {
-        map.set(key, new DaySchedule());
-      })
-    }
-    Fiil() {
-      this.week.forEach((_, key: string, map: WeekSchedule) => {
-        const tempinterval = new Interval(new Date(), new Date());
-        tempinterval.end.setHours(24);
-        map.set(key, new DaySchedule([tempinterval]));
-      })
-    }
-  };
-  class MyVievModel{
-    data: Schedule;
-    model: Map<string, Array<{ time:number, name: string}>>;
-    viewInterval: Interval;
-    period: Date;
-    countPeriods: number;
-    viewBegin: Date;
-    viewEnd: Date;
-    countCel: number;
-    inDayTicks: {from: Date, to: Date, period: Date, [Symbol.iterator](): Generator<Date,Date,void>};
-    constructor(
-      viewInterval: Interval = new Interval(new Date(), new Date(DAY)),
-      period: Date = new Date(HALFANHOUR),
-    ) {
-      this.viewInterval = new Interval(viewInterval.begin, viewInterval.end);
-      this.period = new Date();
-      this.period.setHours(period.getHours(), period.getMinutes(), period.getSeconds(), period.getMilliseconds());
+      this.columns = ko.pureComputed(() => {
+        const result: Array<string> = [this.begin()];
+        const begin = strToTime(this.begin());
+        const end = strToTime(this.end());
+        const period: Date = this.period;
+        if (end <= begin) end.setTime(end.getTime() + DAY);
+        const iterator = ((twoInterval) => {
+          twoInterval.setHours(begin.getHours() + 1);
+          twoInterval.setTime(twoInterval.getTime() + period.getTime());
+          twoInterval.setTime(twoInterval.getTime() - (period.getTime() * Math.floor((twoInterval.getTime() - begin.getTime()) / period.getTime())));
+          if (twoInterval <= begin) twoInterval.setTime(twoInterval.getTime() + period.getTime());
+          console.log(`${String(twoInterval.getHours()).padStart(2, '0')}:${String(twoInterval.getMinutes()).padStart(2, '0')}`);
+          return twoInterval;
+        })(new Date(0));
+        for (; iterator < end; iterator.setTime(iterator.getTime() + period.getTime()))
+          result.push(`${String(iterator.getHours()).padStart(2, '0')}:${String(iterator.getMinutes()).padStart(2, '0')}`);
+        result.push(`${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`);
+        return result;
+      }, this);
 
-      this.inDayTicks = (function (from: Date, to: Date, period: Date) {
-        let twoStepIteration = new Date();
-        twoStepIteration.setHours(from.getHours());
-        if (twoStepIteration.getTime() < from.getTime()) twoStepIteration.setHours(twoStepIteration.getHours() + 1);
-        twoStepIteration.setTime(twoStepIteration.getTime() + ((twoStepIteration.getTime() - from.getTime()) % period.getTime()));
-        if (twoStepIteration.getTime() <= from.getTime()) twoStepIteration.setTime(twoStepIteration.getTime() + period.getTime());
-        return {
-          from: from,
-          to: to,
-          period: period,
-          *[Symbol.iterator](): Generator<Date,Date,void> {
-            yield this.from;
-            for (let value = new Date(twoStepIteration.getTime()); value < this.to; value.setTime(value.getTime() + this.period.getTime())) {
-              yield value;
-            }
-            return this.to;
-          }
-        };
-      })(new Date(this.viewInterval.begin.getTime()), new Date(this.viewInterval.end.getTime()), new Date(this.period.getTime()));
+      this.week = new Map();
+      for (let day of this.dayNames) {
 
-      this.countCel = Math.ceil(DAY / this.period.getTime());
-
-      const tempArr = []; {
-        for (let i = new Date(); i.getTime() < DAY; i.setTime(i.getTime() + this.period.getTime())) {
-          tempArr.push({
-            time: i.getTime(),
-            name: `${i.getHours()}:${i.getMinutes()}`,
-          });
-        };
-        tempArr.push({
-          time: DAY,
-          name: (() => {
-            const temp = new Date(DAY);
-            return `${temp.getHours()}:${temp.getMinutes()}`
-          })(),
-        });
+        const daySchedule: Array<boolean> = [];
+        this.week.set(day.name, ko.observableArray());
       }
-
-      this.data = new Schedule();
-      for (let key of this.data.week.keys()){
-        const arr = [];
-        tempArr.forEach((value) => {
-          arr.push({
-            time: value.time,
-            name: value.name,
-          });
-        });
-        this.model.set(key, arr);
-      };
-    };
+    }
   }
 
-  let viewModel = function () {
-    const tempModel = new MyVievModel();
-    const initArr = [];
-    tempModel.model.get('mon').forEach((value) => {
-      initArr.push({
-        time: value.time,
-        name: value.name,
-      })
-    });
-    this.items = ko.observableArray(initArr);
-    this.begin = ko.observable("12:43");
-    this.end = ko.observable("32:54");
-  }
-  ko.applyBindings(new viewModel());
+  ko.applyBindings(new HelloViewModel());
 
 })();
