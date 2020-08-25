@@ -27,10 +27,10 @@ import { isArray } from "util";
     return result;
   }
   type DayNames = 'mon' | 'tues' | 'wed' | 'thurs' | 'fri' | 'sat' | 'sun';
+
   interface iSchedule{
     getCountIntervals(): number;
     getDaySchedule(day: DayNames): Array<boolean>;
-    test(): any;
   }
   interface iMutableSchedule{
     setBegin(time: Date): void;
@@ -132,8 +132,24 @@ import { isArray } from "util";
         return [];
     }
   }
+  class MutableSchedule extends Schedule implements iSchedule, iMutableWorkIntervalsOnSchedule, iMutableSchedule {
+    // iMutableWorkIntervalsOnSchedule
+    toggleWorkInterval(day: DayNames, posInterval: number) {
+      console.log('MutableSchedule.toggleWorkInterval runned');
+      // console.log(day);
+      // console.log(posInterval);
+    }
+    setStateWorkInterval(day: DayNames, posInterval: number, state: boolean) { }
+    onAllWorkInterval() { }
+    offAllWorkInterval() { }
 
-  class HelloViewModel {
+    // iMutableSchedule
+    setBegin(time: Date) { }
+    setEnd(time: Date) { }
+    setPeriod(time: Date) { }
+  }
+
+  class ViewModel {
     DayNames = [
       { name: 'mon',
         ru: 'Пн'},
@@ -150,86 +166,41 @@ import { isArray } from "util";
       { name: 'sun',
         ru: 'Вс'},
     ];
-    week: Map<string,KnockoutObservableArray<boolean>>;
+    week: Map<string, KnockoutObservableArray<{time: string, state: boolean }>>;
+    private schedule: iSchedule & iMutableWorkIntervalsOnSchedule = new MutableSchedule(new Date(0), new Date(DAY / 2), new Date(HALFANHOUR));
     private begin: KnockoutObservable<string>;
     private end: KnockoutObservable<string>;
-    private columns: KnockoutComputed<Array<string>>;
-    private period: Date;
-    private schedule: iSchedule;
-
-    private createIterator(
-      begin: Date,
-      end: Date,
-      period: Date,
-    ) {
-      (function (from: Date, to: Date, period: Date) {
-        let twoStepIteration = new Date(0);
-        twoStepIteration.setHours(from.getHours() + 1);
-        twoStepIteration.setTime(twoStepIteration.getTime() + period.getTime());
-        twoStepIteration.setTime(twoStepIteration.getTime() - (period.getTime() * Math.floor((twoStepIteration.getTime() - from.getTime()) / period.getTime())));
-        if (twoStepIteration.getTime() <= from.getTime()) twoStepIteration.setTime(twoStepIteration.getTime() + period.getTime());
-        return {
-          from: from,
-          to: to,
-          period: period,
-          *[Symbol.iterator](): Generator<Date,Date,void> {
-            yield this.from;
-            for (let value = new Date(twoStepIteration.getTime()); value < this.to; value.setTime(value.getTime() + this.period.getTime())) {
-              yield value;
-            }
-            return this.to;
-          }
-        };
-      })(new Date(begin.getTime()), new Date(end.getTime()), new Date(period.getTime()));
-
-    }
-    private createSchedule(
-      begin: Date,
-      end: Date,
-      period: Date,
-    ) {
-
-
-    }
+    private toggleWorkInterval(day: DayNames, posInterval: number): void;
+    private onAllWorkInterval(): void;
+    private offAllWorkInterval(): void;
 
     constructor(begin: string = '00:00', end: string = '00:00', period: Date = new Date(HALFANHOUR)) {
-
       this.begin = ko.observable(begin);
+      this.begin.subscribe(function(newValue){console.log(newValue)})
       this.end = ko.observable(end);
-      this.period = period;
-
-      this.schedule = new Schedule(new Date(0), new Date(DAY / 2), period);
-
-      console.log(`${this.schedule.test()}`);
-
-      this.columns = ko.pureComputed(() => {
-        const result: Array<string> = [this.begin()];
-        const begin = strToTime(this.begin());
-        const end = strToTime(this.end());
-        const period: Date = this.period;
-        if (end <= begin) end.setTime(end.getTime() + DAY);
-        const iterator = ((twoInterval) => {
-          twoInterval.setHours(begin.getHours() + 1);
-          twoInterval.setTime(twoInterval.getTime() + period.getTime());
-          twoInterval.setTime(twoInterval.getTime() - (period.getTime() * Math.floor((twoInterval.getTime() - begin.getTime()) / period.getTime())));
-          if (twoInterval <= begin) twoInterval.setTime(twoInterval.getTime() + period.getTime());
-          return twoInterval;
-        })(new Date(0));
-        for (; iterator < end; iterator.setTime(iterator.getTime() + period.getTime()))
-          result.push(`${String(iterator.getHours()).padStart(2, '0')}:${String(iterator.getMinutes()).padStart(2, '0')}`);
-        result.push(`${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`);
-        return result;
-      }, this);
+      // this.schedule = new MutableSchedule(new Date(0), new Date(DAY / 2), period);
 
       this.week = new Map();
       for (let day of this.DayNames) {
-
-        const daySchedule: Array<boolean> = [];
-        this.week.set(day.name, ko.observableArray());
+        const daySchedule= Array(5).fill({time:'10:00',state: true});
+        this.week.set(day.name, ko.observableArray(daySchedule));
       }
+
+      this.toggleWorkInterval = function (day: DayNames, posInterval: number) {
+        if (!this.week.has(day)) return;
+        setTimeout(() => { this.schedule.toggleWorkInterval(day, posInterval) },0);
+        const workIntervals = this.week.get(day)!();
+        workIntervals[posInterval] = {
+          time: workIntervals[posInterval].time,
+          state: !workIntervals[posInterval].state,
+        };
+        this.week.get(day)!(workIntervals);
+      }
+      this.onAllWorkInterval = function () { console.log('ViewModel.onAllWorkInterval runned'); }
+      this.offAllWorkInterval = function () { console.log('ViewModel.offAllWorkInterval runned'); }
     }
   }
 
-  ko.applyBindings(new HelloViewModel());
+  ko.applyBindings(new ViewModel());
 
 })();
